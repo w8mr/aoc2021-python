@@ -1,39 +1,36 @@
 import itertools
 
 from pyparsing import *
+from functools import reduce
 
 with open('input/2021/day2.txt') as f:
     i = list(f)
 
-pos = 0
-depth = 0
-
-for cmd in i:
-    (c, a) = cmd.split()
+def step1(pd, cmd):
+    (p,d) = pd
+    (c, v) = cmd.split()
     if c == 'forward':
-        pos += int(a)
+        p += int(v)
     elif c == 'down':
-        depth += int(a)
+        d += int(v)
     elif c == 'up':
-        depth -= int(a)
+        d -= int(v)
+    return (p,d)
 
-    #print(" ".join((c, a, str(pos),str(depth))))
+(p,d) = reduce(step1, i, (0,0))
+print(p*d)
 
-print(pos*depth)
-
-pos = 0
-depth = 0
-aim = 0
-for cmd in i:
-    (c, a) = cmd.split()
+def step2(pda, cmd):
+    (p,d,a) = pda
+    (c, v) = cmd.split()
     if c == 'forward':
-        pos += int(a)
-        depth += int(a)*aim
+        p += int(v)
+        d += int(v)*a
     elif c == 'down':
-        aim += int(a)
+        a += int(v)
     elif c == 'up':
-        aim -= int(a)
+        a -= int(v)
+    return (p,d,a)
 
-    #print(" ".join((c, a, str(pos),str(depth),str(aim))))
-
-print(pos*depth)
+(p,d,a) = reduce(step2, i, (0,0,0))
+print(p*d)
