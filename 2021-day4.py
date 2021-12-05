@@ -27,16 +27,30 @@ def compose(*functions):
 (randomNumbers, boards) = readInput(i)
 rowcolboards = list(map(lambda board: board + transpose(board), boards))
 
-try:
+def solve(rowcolboards):
+    ws = []
     for rn in randomNumbers:
-        #   print(rn)
-        #   print(list(rowcolboards))
+        #print(rn)
+        #print(list(rowcolboards))
         rowcolboards = list(map(compose(list, partial(map, compose(list, partial(filter, lambda n: n != rn)))), rowcolboards))
-        #   print(list(rowcolboards))
-        rowcolboards = list(map(compose(list, partial(map, compose(list, partial(filter, lambda n: n != rn)))), rowcolboards))
-        winners = list(filter(lambda board: len(list(filter(lambda rc: len(rc) == 0, board))) > 0, rowcolboards))
-        if len(winners) > 0:
-            print(rn*sum(map(sum,winners[0][0:5])))
-            raise Exception
-except Exception:
-    print()
+        #print(list(rowcolboards))
+        
+        w = won(rowcolboards)
+        t = list(zip(rowcolboards, w))
+        #print(list(t))
+        ws = ws + [score(rn, board) for (board, b) in t if b]
+        rowcolboards = [board for (board, b) in t if not b]
+        #print(ws)
+        #print(rowcolboards)
+    return ws    
+
+
+def score(rn, board):
+    return rn*sum(map(sum, board[0:5]))
+
+def won(rowcolboards):
+    return list(map(lambda board: len(list(filter(lambda rc: len(rc) == 0, board))) > 0, rowcolboards))
+
+solve1 = solve(rowcolboards)
+print(solve1[0])
+print(solve1[-1])
