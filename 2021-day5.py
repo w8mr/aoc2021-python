@@ -22,41 +22,64 @@ line = (
 
 input = list(map(line.parseString, i))
 
-def index(x,y):
-    return x+y*d
 
-def addVLine(grid, line):
-    y1 = line.c1.y
-    y2 = line.c2.y
-    (y1, y2) = (y1, y2) if y1 <= y2 else (y2, y1)
-    for y in range(y1, y2 + 1):
-        #print(y)
-        grid[index(line.c1.x, y)] += 1
-    return grid
 
-def addHLine(grid, line):
-    x1 = line.c1.x
-    x2 = line.c2.x
-    (x1, x2) = (x1, x2) if x1 <= x2 else (x2, x1)    
-    for x in range(x1, x2 + 1):
-        #print(x)
-        grid[index(x, line.c1.y)] += 1
-    return grid
+def solve(i, diag):
+    def index(x,y):
+        return x+y*d
 
-def addLine(grid, line):
-#    print([line.c1.x, line.c1.y, line.c2.x, line.c2.y])
-    if (line.c1.x == line.c2.x):
+    def addVLine(grid, x, y1, y2):
 #        print('vline')
-        return addVLine(grid, line)
-    elif (line.c1.y == line.c2.y):
-#        print('hline')
-        return addHLine(grid, line)
-    else:
+        for y in range(y1, y2 + 1):
+#            print(str(x)+", "+str(y))
+            grid[index(x, y)] += 1
         return grid
     
-d = 1000
-grid =array.array('i', [0 for r in range(0,d*d)])
-#print(input)
-grid = reduce(lambda grid, line: addLine(grid, line), input, grid)
-#print(grid)
-print(len(list(filter(lambda x: x>1, grid))))
+    def addHDLine(grid, x1, x2, y, dir):
+#        print('line')
+        for x in range(x1, x2 + 1):
+#            print(str(x)+", "+str(y + dir*(x-x1)))
+            grid[index(x, y + dir*(x-x1))] += 1
+        return grid
+    
+    def addLine(grid, line, diag):
+#        print([line.c1.x, line.c1.y, line.c2.x, line.c2.y])
+        x1 = line.c1.x
+        y1 = line.c1.y
+        x2 = line.c2.x
+        y2 = line.c2.y
+        
+        if (x1 == x2):
+            if (y1<=y2):
+                return addVLine(grid, x1, y1, y2)
+            else:
+                return addVLine(grid, x1, y2, y1)
+        elif (x1<x2):
+            if (y1<y2) and diag:
+                return addHDLine(grid, x1, x2, y1, 1)
+            elif (y1>y2) and diag:
+                return addHDLine(grid, x1, x2, y1, -1)
+            elif (y1==y2):
+                return addHDLine(grid, x1, x2, y1, 0)
+            else:
+                return grid
+        elif (x1>x2):
+            if (y1<y2) and diag:
+                return addHDLine(grid, x2, x1, y2, -1)
+            elif (y1>y2) and diag:
+                return addHDLine(grid, x2, x1, y2, 1)
+            elif (y1==y2):
+                return addHDLine(grid, x2, x1, y2, 0)
+            else: 
+                return grid
+
+    d = 1000
+    grid = array.array('i', [0 for r in range(0, d * d)])
+    # print(input)
+    grid = reduce(lambda grid, line: addLine(grid, line, diag), input, grid)
+    # print(grid)
+    return len(list(filter(lambda x: x > 1, grid)))
+
+
+print("part1: " + str(solve(i, False)))
+print("part2: " + str(solve(i, True)))
